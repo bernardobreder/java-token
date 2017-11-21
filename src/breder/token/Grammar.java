@@ -2,13 +2,13 @@ package breder.token;
 
 import java.text.ParseException;
 
-public class Grammer {
+public class Grammar {
 
 	private final Token[] tokens;
 
 	private int index;
 
-	public Grammer(Token[] tokens) {
+	public Grammar(Token[] tokens) {
 		this.tokens = tokens;
 		this.index = 0;
 	}
