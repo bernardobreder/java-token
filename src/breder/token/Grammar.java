@@ -171,9 +171,16 @@ public class Grammar {
   }
 
   protected SyntaxException error(String message) {
-    Token token = token();
-    return new SyntaxException("[" + token.word + "," + token.offset + "]"
-      + message, token);
+    if (eof()) {
+      Token token = last();
+      return new SyntaxException("[" + token.word + "," + token.offset + "] "
+        + message, token);
+    }
+    else {
+      Token token = token();
+      return new SyntaxException("[" + token.word + "," + token.offset + "] "
+        + message, token);
+    }
   }
 
   public static class SyntaxException extends ParseException {
