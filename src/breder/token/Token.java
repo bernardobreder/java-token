@@ -8,10 +8,21 @@ public class Token {
 
   public final int offset;
 
+  public final int length;
+
+  public Token(String word, Token parent) {
+    this(word, parent.type, parent.offset, word.length());
+  }
+
   public Token(String word, TokenType type, int offset) {
+    this(word, type, offset, word.length());
+  }
+
+  public Token(String word, TokenType type, int offset, int length) {
     this.word = word;
     this.type = type;
     this.offset = offset;
+    this.length = word.length();
   }
 
   public boolean is(String word) {
