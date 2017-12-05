@@ -31,8 +31,8 @@ public class LexerTest {
 
   protected void assertTokenEquals(String content, String... words) {
     String expected = Arrays.toString(words);
-    String actual = Arrays.toString(Arrays.stream(new Lexer(content).execute())
-      .map(e -> e.word).toArray(String[]::new));
+    String actual = Arrays.toString(Arrays.stream(new Lexer("", content)
+      .execute()).map(e -> e.word).toArray(String[]::new));
     Assert.assertEquals(expected, actual);
   }
 

@@ -23,67 +23,67 @@ public class Grammar {
 
   protected Token read(String word, String message) throws SyntaxException {
     if (eof()) {
-      throw new SyntaxException("expected '" + word
-        + "' but was found <EOF> after token", last());
+      throw new SyntaxException(last(), "expected '" + word
+        + "' but was found <EOF> after token");
     }
     Token token = token();
     if (token.is(word)) {
       index++;
       return token;
     }
-    throw new SyntaxException(message, token);
+    throw new SyntaxException(token, message);
   }
 
   protected Token read(char word, String message) throws SyntaxException {
     if (eof()) {
-      throw new SyntaxException("expected <" + word
-        + "> but was found <EOF> after token", last());
+      throw new SyntaxException(last(), "expected <" + word
+        + "> but was found <EOF> after token");
     }
     Token token = token();
     if (token.is(word)) {
       index++;
       return token;
     }
-    throw new SyntaxException(message, token);
+    throw new SyntaxException(token, message);
   }
 
   protected Token readIdentifier(String message) throws SyntaxException {
     if (eof()) {
-      throw new SyntaxException("expected <id> but was found <EOF> after token",
-        last());
+      throw new SyntaxException(last(),
+        "expected <id> but was found <EOF> after token");
     }
     Token token = token();
     if (token.isIdentifier()) {
       index++;
       return token;
     }
-    throw new SyntaxException(message, token);
+    throw new SyntaxException(token, message);
   }
 
   protected Token readNumber(String message) throws SyntaxException {
     if (eof()) {
-      throw new SyntaxException(
-        "expected <number> but was found <EOF> after token", last());
+      throw new SyntaxException(last(),
+        "expected <number> but was found <EOF> after token");
     }
     Token token = token();
     if (token.isNumber()) {
       index++;
       return token;
     }
-    throw new SyntaxException(message, token);
+    throw new SyntaxException(token, message);
   }
 
   protected Token readString(String message) throws SyntaxException {
     if (eof()) {
-      throw new SyntaxException(
-        "expected <string> but was found <EOF> after token", last());
+      throw new SyntaxException(last(),
+        "expected <string> but was found <EOF> after token");
     }
     Token token = token();
     if (token.isString()) {
       index++;
       return token;
     }
-    throw new SyntaxException(message, token);
+    throw new SyntaxException(token, message);
   }
 
   protected boolean can(String word) {
@@ -173,20 +173,25 @@ public class Grammar {
   protected SyntaxException error(String message) {
     if (eof()) {
       Token token = last();
-      return new SyntaxException("[" + token.word + "," + token.offset + "] "
-        + message, token);
+      return new SyntaxException(token, "[" + token.word + "," + token.offset
+        + "] " + message);
     }
     else {
       Token token = token();
-      return new SyntaxException("[" + token.word + "," + token.offset + "] "
-        + message, token);
+      return new SyntaxException(token, "[" + token.word + "," + token.offset
+        + "] " + message);
     }
   }
 
   public static class SyntaxException extends ParseException {
 
-    public SyntaxException(String message, Token token) {
-      super(message, token.offset);
+    public final Token token;
+
+    public SyntaxException(Token token, String message) {
+      super(String.format("at %s with token '%s' at line %d and column %d: %s",
+        token.source, token.word, token.line, token.column, message),
+        token.offset);
+      this.token = token;
     }
 
   }

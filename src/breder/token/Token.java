@@ -2,25 +2,37 @@ package breder.token;
 
 public class Token {
 
+  public final String source;
+
   public final String word;
 
   public final TokenType type;
+
+  public final int line;
+
+  public final int column;
 
   public final int offset;
 
   public final int length;
 
   public Token(String word, Token parent) {
-    this(word, parent.type, parent.offset, word.length());
+    this(parent.source, word, parent.type, parent.line, parent.column,
+      parent.offset, word.length());
   }
 
-  public Token(String word, TokenType type, int offset) {
-    this(word, type, offset, word.length());
+  public Token(String source, String word, TokenType type, int line, int column,
+    int offset) {
+    this(source, word, type, line, column, offset, word.length());
   }
 
-  public Token(String word, TokenType type, int offset, int length) {
+  public Token(String source, String word, TokenType type, int line, int column,
+    int offset, int length) {
+    this.source = source;
     this.word = word;
     this.type = type;
+    this.line = line;
+    this.column = column;
     this.offset = offset;
     this.length = word.length();
   }

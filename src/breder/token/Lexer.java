@@ -7,15 +7,22 @@ import breder.token.Token.TokenType;
 
 public class Lexer {
 
-  private char[] chars;
+  private final String source;
 
-  private int index;
+  private final char[] chars;
+
+  private int line = 1;
+
+  private int column = 1;
+
+  private int index = 0;
 
   private List<Token> tokens;
 
   private boolean dot;
 
-  public Lexer(String content) {
+  public Lexer(String source, String content) {
+    this.source = source;
     this.chars = content.toCharArray();
   }
 
@@ -47,37 +54,82 @@ public class Lexer {
 
   protected void stepWhitespace() {
     char c = chars[index];
-    while (c <= 32) {
-      index++;
-      if (eof()) {
-        return;
+    for (;;) {
+      if (c <= 32) {
+        if (c == '\n') {
+          line++;
+          column = 1;
+        }
+        else {
+          column++;
+        }
+        index++;
+        if (eof()) {
+          return;
+        }
+        c = chars[index];
       }
-      c = chars[index];
+      else if (stepComment()) {
+        index += 2;
+        column += 2;
+        c = chars[index];
+        while (c != '\n') {
+          column++;
+          c = chars[index++];
+          if (eof()) {
+            return;
+          }
+        }
+        line++;
+        column = 1;
+        c = chars[++index];
+      }
+      else {
+        break;
+      }
     }
   }
 
+  protected boolean stepComment() {
+    if (eof(1)) {
+      return false;
+    }
+    if (chars[index] == '/' && chars[index + 1] == '/') {
+      return true;
+    }
+    return false;
+  }
+
   protected void stepId() {
+    int line = this.line;
+    int column = this.column;
     int begin = index;
     index++;
     while (!eof() && isIdPart()) {
       index++;
     }
-    tokens.add(new Token(new String(chars, begin, index - begin), TokenType.ID,
-      begin));
+    this.column += index - begin;
+    tokens.add(new Token(source, new String(chars, begin, index - begin),
+      TokenType.ID, line, column, begin));
   }
 
   protected void stepNumber() {
+    int line = this.line;
+    int column = this.column;
     int begin = index;
     dot = false;
     index++;
     while (!eof() && isNumberPart()) {
       index++;
     }
-    tokens.add(new Token(new String(chars, begin, index - begin), TokenType.NUM,
-      begin));
+    this.column += index - begin;
+    tokens.add(new Token(source, new String(chars, begin, index - begin),
+      TokenType.NUM, line, column, begin));
   }
 
   protected void stepString() {
+    int line = this.line;
+    int column = this.column;
     int begin = index++;
     while (!eof() && isStringPart()) {
       index++;
@@ -85,13 +137,15 @@ public class Lexer {
     if (!eof()) {
       index++;
     }
-    tokens.add(new Token(new String(chars, begin, index - begin), TokenType.STR,
-      begin));
+    this.column += index - begin;
+    tokens.add(new Token(source, new String(chars, begin, index - begin),
+      TokenType.STR, line, column, begin));
   }
 
   protected void stepSymbol() {
     int begin = index++;
-    tokens.add(new Token(new String(chars, begin, 1), TokenType.SYM, begin));
+    tokens.add(new Token(source, new String(chars, begin, 1), TokenType.SYM,
+      line, column++, begin));
   }
 
   protected boolean isStringStart() {
@@ -138,6 +192,10 @@ public class Lexer {
 
   protected boolean eof() {
     return index >= chars.length;
+  }
+
+  protected boolean eof(int next) {
+    return index + next >= chars.length;
   }
 
 }
