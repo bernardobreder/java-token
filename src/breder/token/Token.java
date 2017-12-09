@@ -37,6 +37,11 @@ public class Token {
     this.length = word.length();
   }
 
+  public Token join(Token token) {
+    return new Token(source, word, type, line, column, offset, token.offset
+      - offset);
+  }
+
   public boolean is(String word) {
     return type == TokenType.ID && word.hashCode() == word.hashCode()
       && this.word.equals(word);
