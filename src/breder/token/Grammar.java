@@ -154,8 +154,12 @@ public class Grammar {
     return tokens[index++];
   }
 
-  protected void next(int count) {
-    index += count;
+  protected Token next(int count) {
+    Token begin = token();
+    index += count - 1;
+    Token end = token();
+    index++;
+    return begin.join(end);
   }
 
   protected Token token() {
