@@ -18,7 +18,7 @@ public class Token {
 
   public Token(String word, Token parent) {
     this(parent.source, word, parent.type, parent.line, parent.column,
-      parent.offset, word.length());
+      parent.offset, parent.length);
   }
 
   public Token(String source, String word, TokenType type, int line, int column,
@@ -34,7 +34,7 @@ public class Token {
     this.line = line;
     this.column = column;
     this.offset = offset;
-    this.length = word.length();
+    this.length = length;
   }
 
   public Token join(Token token) {
