@@ -72,6 +72,9 @@ public class Lexer {
       else if (stepComment()) {
         index += 2;
         column += 2;
+        if (eof()) {
+          return;
+        }
         c = chars[index];
         while (c != '\n') {
           column++;
@@ -82,7 +85,10 @@ public class Lexer {
         }
         line++;
         column = 1;
-        c = chars[++index];
+        if (eof()) {
+          return;
+        }
+        c = chars[index];
       }
       else {
         break;
