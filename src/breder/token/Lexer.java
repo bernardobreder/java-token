@@ -123,14 +123,26 @@ public class Lexer {
     int line = this.line;
     int column = this.column;
     int begin = index;
-    dot = false;
-    index++;
-    while (!eof() && isNumberPart()) {
-      index++;
+    if (chars[index] == '0' && index + 1 < chars.length && (chars[index
+      + 1] == 'x' || chars[index + 1] == 'X')) {
+      index += 2;
+      while (!eof() && isHexPart()) {
+        index++;
+      }
+      this.column += index - begin;
+      tokens.add(new Token(source, new String(chars, begin, index - begin),
+        TokenType.HEX, line, column, begin));
     }
-    this.column += index - begin;
-    tokens.add(new Token(source, new String(chars, begin, index - begin),
-      TokenType.NUM, line, column, begin));
+    else {
+      dot = false;
+      index++;
+      while (!eof() && isNumberPart()) {
+        index++;
+      }
+      this.column += index - begin;
+      tokens.add(new Token(source, new String(chars, begin, index - begin),
+        TokenType.NUM, line, column, begin));
+    }
   }
 
   protected void stepString() {
@@ -179,6 +191,12 @@ public class Lexer {
       }
     }
     return c >= '0' && c <= '9';
+  }
+
+  protected boolean isHexPart() {
+    char c = chars[index];
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A'
+      && c <= 'F');
   }
 
   protected boolean isIdStart() {

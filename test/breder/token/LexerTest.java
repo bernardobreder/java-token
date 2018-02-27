@@ -17,6 +17,8 @@ public class LexerTest {
     assertTokenEquals(" a ", "a");
     assertTokenEquals("1", "1");
     assertTokenEquals("123", "123");
+    assertTokenEquals("0x1", "0x1");
+    assertTokenEquals("0x1Fb", "0x1Fb");
     assertTokenEquals("1.", "1.");
     assertTokenEquals("1.23", "1.23");
     assertTokenEquals("1.23.", "1.23", ".");
