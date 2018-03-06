@@ -146,6 +146,10 @@ public class Grammar {
     return !eof() && token().isNumber();
   }
 
+  protected boolean isHex() {
+    return !eof() && token().isHex();
+  }
+
   protected boolean isString() {
     return !eof() && token().isString();
   }

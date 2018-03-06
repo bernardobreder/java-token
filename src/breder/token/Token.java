@@ -63,6 +63,10 @@ public class Token {
     return type == TokenType.NUM;
   }
 
+  public boolean isHex() {
+    return type == TokenType.HEX;
+  }
+
   public boolean isString() {
     return type == TokenType.STR;
   }
