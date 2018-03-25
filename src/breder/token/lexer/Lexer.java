@@ -7,26 +7,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Lexer {
-
+	
 	private List<AbstractMatcher> matchers = new ArrayList<>();
-
-	// public static void main(String[] args) throws LexerException {
-	// Lexer lexer = new Lexer();
-	// lexer.addPattern(";(.*)(\r)?\n", 1);
-	// lexer.addPattern(";(.*)$", 1);
-	// lexer.addKeyword("sin", 2);
-	// lexer.addPattern("[a-zA-Z_][a-zA-Z0-9_]*", 3);
-	// lexer.addKeyword("++", 4);
-	// lexer.addSymbol('(', 5);
-	// lexer.addSymbol(')', 6);
-	// long time = System.currentTimeMillis();
-	// MyToken[] tokens = lexer.execute("test.txt",
-	// "\tsin(a++);abc\n\tsin()\n();sss");
-	// System.out.println("Time: " + (System.currentTimeMillis() - time) + " ms");
-	// for (MyToken token : tokens) {
-	// System.out.println(token.toString());
-	// }
-	// }
+	
 	public MyToken[] execute(String source, String content) throws LexerException {
 		ArrayList<MyToken> tokens = new ArrayList<>();
 		char[] chars = content.toCharArray();
@@ -81,11 +64,11 @@ public class Lexer {
 		}
 		return tokens.toArray(new MyToken[tokens.size()]);
 	}
-
+	
 	protected MyToken createToken(String source, int offset, int line, int column, String word, int type) {
 		return new MyToken(type, source, word, offset, line, column);
 	}
-
+	
 	protected String errorWord(char[] chars, int offset) {
 		String word = new String(chars, offset, Math.min(32, chars.length - offset));
 		while (word.indexOf('\r') >= 0) {
@@ -99,23 +82,23 @@ public class Lexer {
 		}
 		return word;
 	}
-
+	
 	public void addSymbol(char character, int type) {
 		matchers.add(new SymbolMatcher(type, character));
 	}
-
+	
 	public void addKeyword(String keyword, int type) {
 		matchers.add(new KeywordMatcher(type, keyword));
 	}
-
+	
 	public void addPattern(String pattern, int type) {
 		matchers.add(new PatternMatcher(type, Pattern.compile("^(" + pattern + ")")));
 	}
-
+	
 	public static abstract class AbstractMatcher {
-
+		
 		protected final int type;
-
+		
 		/**
 		 * @param type
 		 */
@@ -123,19 +106,19 @@ public class Lexer {
 			super();
 			this.type = type;
 		}
-
+		
 		public abstract String match(char[] chars, int offset);
 	}
-
+	
 	public static class SymbolMatcher extends AbstractMatcher {
-
+		
 		protected final char character;
-
+		
 		public SymbolMatcher(int type, char character) {
 			super(type);
 			this.character = character;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -145,16 +128,16 @@ public class Lexer {
 			return null;
 		}
 	}
-
+	
 	public static class KeywordMatcher extends AbstractMatcher {
-
+		
 		protected final String keyword;
-
+		
 		public KeywordMatcher(int type, String keyword) {
 			super(type);
 			this.keyword = keyword;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -169,16 +152,16 @@ public class Lexer {
 			return new String(chars, offset, keywordLength);
 		}
 	}
-
+	
 	public static class PatternMatcher extends AbstractMatcher {
-
+		
 		protected final Pattern pattern;
-
+		
 		public PatternMatcher(int type, Pattern pattern) {
 			super(type);
 			this.pattern = pattern;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -190,21 +173,21 @@ public class Lexer {
 			return m.group();
 		}
 	}
-
+	
 	public static class MyToken {
-
+		
 		public final String source;
-
+		
 		public final int offset;
-
+		
 		public final int line;
-
+		
 		public final int column;
-
+		
 		public final int type;
-
+		
 		public final String word;
-
+		
 		/**
 		 * @param type
 		 * @param source
@@ -222,7 +205,7 @@ public class Lexer {
 			this.type = type;
 			this.word = word;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -231,19 +214,19 @@ public class Lexer {
 			return String.format("MyToken(%d, \"%s\", \"%s\", %d, %d, %d)", type, source, word, offset, line, column);
 		}
 	}
-
+	
 	public static class LexerException extends Exception {
-
+		
 		public final String source;
-
+		
 		public final String word;
-
+		
 		public final int offset;
-
+		
 		public final int line;
-
+		
 		public final int column;
-
+		
 		public LexerException(String source, String word, int offset, int line, int column) {
 			this.source = source;
 			this.word = word;
@@ -251,7 +234,7 @@ public class Lexer {
 			this.line = line;
 			this.column = column;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
