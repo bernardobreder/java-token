@@ -3,6 +3,8 @@ package breder.token;
 import static java.util.Arrays.stream;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,6 +65,19 @@ public class TokenizerTest {
    * @param args
    */
   public static void main(String[] args) {
+    if (false) {
+      String buffer = "a bb ccc d e ff(a)\t\td";
+      Pattern p = Pattern.compile("\\S+");
+      Matcher m = p.matcher(buffer);
+
+      while (m.find()) {
+        String matchStr = m.group();
+        int startOffset = m.start();
+        int endOffset = m.end();
+        System.out.println("[ " + matchStr + " " + Integer.toString(startOffset)
+          + " " + Integer.toString(endOffset) + " ]");
+      }
+    }
     Tokenizer tokenizer = new Tokenizer();
     tokenizer.add("sin|cos|exp|ln|sqrt", 1);
     tokenizer.add("\\(", 2);
@@ -76,12 +91,12 @@ public class TokenizerTest {
     try {
       String code = " sin(x) * (1 - var_12) ";
       for (Tokenizer.Token tok : tokenizer.tokenize(code)) {
-        System.out.println("" + tok.token + " " + tok.sequence);
+        System.out.println("" + tok.type + " " + tok.offset + " "
+          + tok.sequence);
       }
     }
     catch (ParserException e) {
       System.out.println(e.getMessage());
     }
-
   }
 }

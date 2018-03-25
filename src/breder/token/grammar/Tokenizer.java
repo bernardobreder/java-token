@@ -2,6 +2,7 @@ package breder.token.grammar;
 
 import static java.util.regex.Pattern.compile;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -16,23 +17,25 @@ public class Tokenizer {
   }
 
   public Token[] tokenize(String str) {
-    List<Token> tokens = new LinkedList<>();
-    String s = str.trim();
-    tokens.clear();
-    while (!s.equals("")) {
+    String strTrim = str.trim();
+    int offset = str.length() - strTrim.length();
+    String string = strTrim;
+    List<Token> tokens = new ArrayList<>();
+    while (!string.equals("")) {
       boolean match = false;
       for (TokenInfo info : tokenInfos) {
-        Matcher m = info.regex.matcher(s);
+        Matcher m = info.pattern.matcher(string);
         if (m.find()) {
+
           match = true;
           String tok = m.group().trim();
-          s = m.replaceFirst("").trim();
-          tokens.add(new Token(info.token, tok));
+          string = m.replaceFirst("").trim();
+          tokens.add(new Token(info.token, offset, tok));
           break;
         }
       }
       if (!match) {
-        throw new ParserException("Unexpected character in input: " + s);
+        throw new ParserException("Unexpected character in input: " + string);
       }
     }
     return tokens.toArray(new Token[tokens.size()]);
@@ -40,27 +43,30 @@ public class Tokenizer {
 
   private class TokenInfo {
 
-    public final Pattern regex;
+    public final Pattern pattern;
 
     public final int token;
 
     public TokenInfo(Pattern regex, int token) {
       super();
-      this.regex = regex;
+      this.pattern = regex;
       this.token = token;
     }
 
   }
 
-  public class Token {
+  public static class Token {
 
-    public final int token;
+    public final int type;
+
+    public final int offset;
 
     public final String sequence;
 
-    public Token(int token, String sequence) {
+    public Token(int type, int offset, String sequence) {
       super();
-      this.token = token;
+      this.type = type;
+      this.offset = offset;
       this.sequence = sequence;
     }
 
