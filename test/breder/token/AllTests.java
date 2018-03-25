@@ -6,9 +6,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ //
-    LexerTest.class, //
-    TokenizerTest.class, //
+		LexerTest.class, //
+		LexerTest.class, //
 })
 public class AllTests {
-
 }
