@@ -11,7 +11,7 @@ public class Lexer {
 	private final List<AbstractMatcher> matchers = new ArrayList<>();
 
 	public LexerToken[] execute(String source, String content) throws LexerException {
-		ArrayList<LexerToken> tokens = new ArrayList<>();
+		List<LexerToken> tokens = new ArrayList<>();
 		char[] chars = content.toCharArray();
 		int offset = 0;
 		int line = 1;
@@ -38,11 +38,13 @@ public class Lexer {
 			if (offset == length) {
 				break;
 			}
+			// Verifica os Matchers
 			boolean found = false;
 			for (int n = 0; n < matcherSize; n++) {
 				AbstractMatcher matcher = matchers.get(n);
 				String word = matcher.match(chars, offset);
 				if (word != null) {
+					// Caso tenha efetuado um match
 					found = true;
 					tokens.add(createToken(source, offset, line, column, word, matcher.type));
 					int offsetLength = offset + word.length();
@@ -63,16 +65,19 @@ public class Lexer {
 		return tokens.toArray(new LexerToken[tokens.size()]);
 	}
 
-	protected LexerException lexerException(String source, char[] chars, int offset, int line, int column) {
-		return new LexerException(source, errorWord(chars, offset), offset, line, column);
-	}
-
 	protected LexerToken createToken(String source, int offset, int line, int column, String word, int type) {
 		return new LexerToken(type, source, word, offset, line, column);
 	}
 
+	protected LexerException lexerException(String source, char[] chars, int offset, int line, int column) {
+		return new LexerException(source, errorWord(chars, offset), offset, line, column);
+	}
+
 	protected String errorWord(char[] chars, int offset) {
-		String word = new String(chars, offset, Math.min(32, chars.length - offset));
+		return errorReplace(new String(chars, offset, Math.min(32, chars.length - offset)));
+	}
+
+	protected String errorReplace(String word) {
 		while (word.indexOf('\r') >= 0) {
 			word = word.replace("\r", "\\r");
 		}
