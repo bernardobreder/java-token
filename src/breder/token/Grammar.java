@@ -1,5 +1,7 @@
 package breder.token;
 
+import static java.util.Objects.requireNonNull;
+
 import java.text.ParseException;
 
 public class Grammar {
@@ -9,7 +11,7 @@ public class Grammar {
 	private int index;
 
 	public Grammar(Token[] tokens) {
-		this.tokens = tokens;
+		this.tokens = requireNonNull(tokens);
 		this.index = 0;
 	}
 
