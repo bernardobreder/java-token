@@ -2,14 +2,18 @@ package breder.token.lexer;
 
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Lexer {
-
+	
 	private final List<AbstractMatcher> matchers = new ArrayList<>();
-
+	
+	private final Set<String> keywords = new HashSet<>();
+	
 	public LexerToken[] execute(String source, String content) throws LexerException {
 		List<LexerToken> tokens = new ArrayList<>();
 		char[] chars = content.toCharArray();
@@ -46,7 +50,7 @@ public class Lexer {
 				if (word != null) {
 					// Caso tenha efetuado um match
 					found = true;
-					tokens.add(createToken(source, offset, line, column, word, matcher.type));
+					tokens.add(createToken(source, content, word, matcher.type, offset, line, column));
 					int offsetLength = offset + word.length();
 					for (int m = offset; m < offsetLength; m++) {
 						if (chars[m] == '\n') {
@@ -64,19 +68,19 @@ public class Lexer {
 		}
 		return tokens.toArray(new LexerToken[tokens.size()]);
 	}
-
-	protected LexerToken createToken(String source, int offset, int line, int column, String word, int type) {
+	
+	protected LexerToken createToken(String source, String content, String word, int type, int offset, int line, int column) {
 		return new LexerToken(type, source, word, offset, line, column);
 	}
-
+	
 	protected LexerException lexerException(String source, char[] chars, int offset, int line, int column) {
 		return new LexerException(source, errorWord(chars, offset), offset, line, column);
 	}
-
+	
 	protected String errorWord(char[] chars, int offset) {
 		return errorReplace(new String(chars, offset, Math.min(32, chars.length - offset)));
 	}
-
+	
 	protected String errorReplace(String word) {
 		while (word.indexOf('\r') >= 0) {
 			word = word.replace("\r", "\\r");
@@ -89,23 +93,28 @@ public class Lexer {
 		}
 		return word;
 	}
-
+	
 	public void addSymbol(char character, int type) {
 		matchers.add(new SymbolMatcher(type, character));
 	}
-
+	
 	public void addKeyword(String keyword, int type) {
 		matchers.add(new KeywordMatcher(type, keyword));
+		keywords.add(keyword);
 	}
-
+	
 	public void addPattern(String pattern, int type) {
 		matchers.add(new PatternMatcher(type, Pattern.compile("^(" + pattern + ")")));
 	}
-
+	
+	public void addNotKeyword(String pattern, int type) {
+		matchers.add(new NotKeywordMatcher(type, Pattern.compile("^(" + pattern + ")"), keywords));
+	}
+	
 	public static abstract class AbstractMatcher {
-
+		
 		protected final int type;
-
+		
 		/**
 		 * @param type
 		 */
@@ -113,19 +122,19 @@ public class Lexer {
 			super();
 			this.type = type;
 		}
-
+		
 		public abstract String match(char[] chars, int offset);
 	}
-
+	
 	public static class SymbolMatcher extends AbstractMatcher {
-
+		
 		protected final char character;
-
+		
 		public SymbolMatcher(int type, char character) {
 			super(type);
 			this.character = character;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -135,16 +144,16 @@ public class Lexer {
 			return null;
 		}
 	}
-
+	
 	public static class KeywordMatcher extends AbstractMatcher {
-
+		
 		protected final String keyword;
-
+		
 		public KeywordMatcher(int type, String keyword) {
 			super(type);
 			this.keyword = keyword;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -159,16 +168,16 @@ public class Lexer {
 			return new String(chars, offset, keywordLength);
 		}
 	}
-
+	
 	public static class PatternMatcher extends AbstractMatcher {
-
+		
 		protected final Pattern pattern;
-
+		
 		public PatternMatcher(int type, Pattern pattern) {
 			super(type);
 			this.pattern = pattern;
 		}
-
+		
 		/**
 		 * {@inheritDoc}
 		 */
@@ -178,6 +187,32 @@ public class Lexer {
 			Matcher m = pattern.matcher(buffer);
 			if (!m.find()) { return null; }
 			return m.group();
+		}
+	}
+	
+	public static class NotKeywordMatcher extends AbstractMatcher {
+		
+		protected final Pattern pattern;
+		
+		protected final Set<String> keywords;
+		
+		public NotKeywordMatcher(int type, Pattern pattern, Set<String> keywords) {
+			super(type);
+			this.pattern = pattern;
+			this.keywords = keywords;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String match(char[] chars, int offset) {
+			CharBuffer buffer = CharBuffer.wrap(chars, offset, chars.length - offset);
+			Matcher m = pattern.matcher(buffer);
+			if (!m.find()) { return null; }
+			String word = m.group();
+			if (keywords.contains(word)) { return null; }
+			return word;
 		}
 	}
 }
