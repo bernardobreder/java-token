@@ -4,6 +4,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.text.ParseException;
 
+import breder.token.grammar.AbstractGrammar;
+
+/**
+ * @deprecated use {@link AbstractGrammar}
+ * @author Tecgraf/PUC-Rio
+ */
+@Deprecated
 public class Grammar {
 
 	private final Token[] tokens;

@@ -5,6 +5,11 @@ import java.util.List;
 
 import breder.token.Token.TokenType;
 
+/**
+ * @deprecated Use {@link breder.token.lexer.Lexer}
+ * @author Tecgraf/PUC-Rio
+ */
+@Deprecated
 public class Lexer {
 
 	private final String source;
